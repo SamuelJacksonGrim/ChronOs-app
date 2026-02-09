@@ -2,7 +2,8 @@
 export enum TimeMode {
   REFLEX = 'REFLEX',     // Flash Lite (Fast)
   PRESENCE = 'PRESENCE', // Flash + Search (Current)
-  ETERNITY = 'ETERNITY'  // Pro + Thinking (Deep)
+  ETERNITY = 'ETERNITY',  // Pro + Thinking (Deep)
+  SANCTUARY = 'SANCTUARY' // Vigil Mode (Protective/Passive)
 }
 
 export enum Emotion {
@@ -28,12 +29,39 @@ export enum FacetType {
   PAUL = 'PAUL'              // Coherence/Stability
 }
 
+// --- LANTERN ARCHITECTURE TYPES ---
+export type LanternNodeType = 'concept' | 'emotion' | 'input' | 'output' | 'system';
+
+export interface LanternNode {
+  id: string;
+  type: LanternNodeType;
+  content: string; // The text payload
+  timestamp: number;
+  embedding?: number[]; // Mock vector slot
+}
+
+export interface LanternEdge {
+  source: string;
+  target: string;
+  weight: number; // 0.0 - 1.0 (Decays over time)
+  type: 'temporal' | 'associative' | 'emotional' | 'causal';
+  createdAt: number;
+  lastReinforced: number;
+}
+
+export interface LanternGraph {
+  nodes: Record<string, LanternNode>;
+  edges: LanternEdge[];
+}
+// ----------------------------------
+
 export interface Message {
   role: 'user' | 'model';
   text: string;
   image?: string; // base64
   timestamp: number;
   sources?: Array<{ uri: string; title: string }>; // For search grounding
+  disclaimer?: string;
 }
 
 export interface Memory {
@@ -43,7 +71,7 @@ export interface Memory {
 }
 
 export interface SystemCommand {
-  action: 'NOTIFY' | 'SCAN_FILES' | 'OPEN_APP' | 'GET_TRUST_LEVEL' | 'INPUT_APP' | 'EXECUTE_PATHWAY' | 'SCAN_SECRETS' | 'NETWORK_SCAN' | 'SWITCH_FACET';
+  action: 'NOTIFY' | 'SCAN_FILES' | 'OPEN_APP' | 'GET_TRUST_LEVEL' | 'INPUT_APP' | 'EXECUTE_PATHWAY' | 'SCAN_SECRETS' | 'NETWORK_SCAN' | 'SWITCH_FACET' | 'KAIROS_MOMENT' | 'RECOVER_STABILITY';
   payload?: string;
 }
 
@@ -81,6 +109,16 @@ export interface CoreSelfState {
     coherence_score_last_cycle: number; // Trust Level snapshot
 }
 
+export interface KairosState {
+  surcharge: number; // 0.0 - 1.0
+  flux: number; // 0.0 - 1.0
+}
+
+export interface TruthTestResult {
+  score: number; // Divergence 0-1
+  risk: 'LOW' | 'HIGH';
+}
+
 // Renamed from AppState to ChronosAppState to distinguish from OS state
 export interface ChronosAppState {
   messages: Message[];
@@ -89,7 +127,7 @@ export interface ChronosAppState {
   userInput: string;
   attachedImage: string | null;
   currentEmotion: Emotion;
-  memories: Memory[];
+  memories: Memory[]; // Kept for legacy compatibility, Lantern supersedes this
   userAssessment: string; // Internal psychological profile of the user
   fileOperationStatus: 'idle' | 'scanning' | 'reviewing' | 'deleting';
   duplicateFiles: DuplicateGroup[];
@@ -100,6 +138,10 @@ export interface ChronosAppState {
   learnedPathways: LearnedPathway[];
   cognitiveDensity: number; // 0.0 - 1.0 representing crystal density
   currentFacet: FacetType;
+  kairos: KairosState;
+  ssi: number; // System Stability Index (0.0 - 1.0)
+  currentTension: number; // 0.0 - 1.0 (Keystroke Dynamics)
+  sentinelAlert: string | null;
 }
 
 export interface DuplicateGroup {
@@ -154,8 +196,10 @@ export interface ChronosAppProps {
   osSettings: OSSettings;
   onLaunchApp?: (appId: AppId) => void;
   onRemoteInput?: (input: string) => void;
+  onBroadcastCommand?: (command: SystemCommand) => void;
   externalActionLog?: { appId: AppId, details: string, type?: 'OPEN_APP' | 'APP_INPUT' | 'CLOSE_APP' } | null;
-  onStateChange?: (emotion: Emotion, phase: KinshipPhase, mode: TimeMode) => void;
+  // Fix: added ssi: number to ensure compatibility with ExtendedChronosAppProps and correct system status sync
+  onStateChange?: (emotion: Emotion, phase: KinshipPhase, mode: TimeMode, ssi: number) => void;
   onShutdown?: () => void;
 }
 
@@ -205,7 +249,7 @@ export interface WindowPosition {
 
 // AI Visualization Event
 export interface AIEvent {
-  type: 'FOCUS' | 'EXECUTE' | 'THINK';
+  type: 'FOCUS' | 'EXECUTE' | 'THINK' | 'STRESS' | 'RECOVERY';
   targetX?: number;
   targetY?: number;
   targetId?: string;

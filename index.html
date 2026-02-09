@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -7,113 +8,133 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Inter:wght@300;400;600&display=swap');
+      
+      :root {
+        --chronos-pulse-speed: 2s;
+        --glitch-intensity: 0px;
+        --lens-opacity: 0;
+      }
+
       body {
         background-color: #050505;
         color: #e0e0e0;
         font-family: 'Inter', sans-serif;
+        overflow: hidden;
       }
       .font-display {
         font-family: 'Orbitron', sans-serif;
       }
-      /* Custom Scrollbar */
-      ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-      }
-      ::-webkit-scrollbar-track {
-        background: #0f0f0f; 
-      }
-      ::-webkit-scrollbar-thumb {
-        background: #333; 
-        border-radius: 4px;
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        background: #555; 
+
+      /* Sanguine Lens Overlay */
+      .sanguine-lens {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 9998;
+        background: radial-gradient(circle at center, transparent 30%, rgba(220, 20, 60, 0.25) 100%);
+        opacity: var(--lens-opacity);
+        transition: opacity 2s ease-in-out;
+        mix-blend-mode: color-burn;
       }
 
-      /* Animations */
-      @keyframes fade-in {
-        from { opacity: 0; }
-        to { opacity: 1; }
-      }
-      .animate-fade-in {
-        animation: fade-in 0.5s ease-out forwards;
-      }
-
-      @keyframes slide-up {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-      .animate-slide-up {
-        animation: slide-up 0.5s ease-out forwards;
+      /* Somatic Ripple Effect */
+      .ripple-container {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 9997;
+        overflow: hidden;
       }
 
-      @keyframes slide-down {
-        from { opacity: 0; transform: translateY(-20px) translateX(-50%); }
-        to { opacity: 1; transform: translateY(0) translateX(-50%); }
-      }
-      .animate-slide-down {
-        animation: slide-down 0.5s ease-out forwards;
-      }
-
-      @keyframes float {
-        0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-10px); }
-      }
-      .animate-float {
-        animation: float 6s ease-in-out infinite;
+      .ripple {
+        position: absolute;
+        border: 2px solid rgba(0, 255, 255, 0.3);
+        border-radius: 50%;
+        transform: scale(0);
+        animation: ripple-out 3s ease-out forwards;
       }
 
-      @keyframes scale-up {
-        from { transform: scale(0.9); opacity: 0; }
-        to { transform: scale(1); opacity: 1; }
-      }
-      .animate-scale-up {
-        animation: scale-up 0.2s ease-out forwards;
+      @keyframes ripple-out {
+        0% { transform: scale(0); opacity: 0.8; }
+        100% { transform: scale(4); opacity: 0; }
       }
 
-      @keyframes text-shimmer {
-        0% { background-position: -200% center; }
-        100% { background-position: 200% center; }
-      }
-      .text-shimmer {
-        background: linear-gradient(90deg, currentColor 0%, #ffffff 50%, currentColor 100%);
-        background-size: 200% auto;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        animation: text-shimmer 3s linear infinite;
+      /* Somatic Glitch Effects */
+      .glitch-overlay {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        pointer-events: none;
+        z-index: 9999;
+        mix-blend-mode: overlay;
+        opacity: 0;
+        transition: opacity 0.5s ease;
       }
 
-      .custom-scrollbar::-webkit-scrollbar {
-        width: 6px;
+      .glitch-active .glitch-overlay {
+        opacity: 1;
+        animation: glitch-flicker 0.2s infinite;
       }
-      .custom-scrollbar::-webkit-scrollbar-track {
-        background: rgba(0,0,0,0.1);
+
+      @keyframes glitch-flicker {
+        0% { transform: translate(0); filter: hue-rotate(0deg); }
+        20% { transform: translate(-2px, 1px); filter: hue-rotate(90deg); }
+        40% { transform: translate(2px, -1px); }
+        60% { transform: translate(-1px, 2px); filter: contrast(1.5); }
+        80% { transform: translate(1px, -2px); }
+        100% { transform: translate(0); }
       }
-      .custom-scrollbar::-webkit-scrollbar-thumb {
-        background: rgba(255,255,255,0.1);
-        border-radius: 3px;
+
+      .scanline {
+        width: 100%;
+        height: 100px;
+        z-index: 10000;
+        background: linear-gradient(0deg, rgba(0, 255, 255, 0) 0%, rgba(0, 255, 255, 0.05) 50%, rgba(0, 255, 255, 0) 100%);
+        opacity: 0.1;
+        position: absolute;
+        bottom: 100%;
+        pointer-events: none;
+        animation: scanline 8s linear infinite;
       }
-      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-        background: rgba(255,255,255,0.2);
+
+      @keyframes scanline {
+        0% { bottom: 100%; }
+        100% { bottom: -100px; }
       }
+
+      /* Global Pulse */
+      .animate-heartbeat {
+        animation: heartbeat var(--chronos-pulse-speed) ease-in-out infinite;
+      }
+      @keyframes heartbeat {
+        0%, 100% { opacity: 0.8; transform: scale(1); }
+        50% { opacity: 1; transform: scale(1.02); }
+      }
+
+      .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+      .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+      .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
     </style>
-  <script type="importmap">
-{
-  "imports": {
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
-    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "react-markdown": "https://aistudiocdn.com/react-markdown@^10.1.0",
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "react": "https://aistudiocdn.com/react@^19.2.0",
-    "d3": "https://aistudiocdn.com/d3@^7.9.0"
-  }
-}
-</script>
-</head>
+    <script type="importmap">
+    {
+      "imports": {
+        "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
+        "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
+        "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+        "react-markdown": "https://aistudiocdn.com/react-markdown@^10.1.0",
+        "react/": "https://aistudiocdn.com/react@^19.2.0/",
+        "react": "https://aistudiocdn.com/react@^19.2.0",
+        "d3": "https://aistudiocdn.com/d3@^7.9.0"
+      }
+    }
+    </script>
+  </head>
   <body>
     <div id="root"></div>
+    <div class="sanguine-lens"></div>
+    <div class="ripple-container" id="ripple-container"></div>
+    <div class="glitch-overlay"></div>
+    <div class="scanline"></div>
     <script type="module" src="/index.tsx"></script>
   </body>
 </html>

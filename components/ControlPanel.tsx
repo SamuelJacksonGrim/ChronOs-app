@@ -2,8 +2,9 @@
 import React, { useRef, useState } from 'react';
 import { TimeMode } from '../types';
 import { MODE_CONFIG } from '../constants';
-import { Send, Image as ImageIcon, X, Zap, Globe, BrainCircuit, Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
+import { Send, Image as ImageIcon, X, Zap, Globe, BrainCircuit, Mic, MicOff, Volume2, VolumeX, Shield } from 'lucide-react';
 import { startListening } from '../services/voiceService';
+import { useKeystrokeDynamics } from '../hooks/useKeystrokeDynamics';
 
 interface ControlPanelProps {
   currentMode: TimeMode;
@@ -16,6 +17,7 @@ interface ControlPanelProps {
   onImageSelect: (base64: string | null) => void;
   isMuted: boolean;
   onToggleMute: () => void;
+  onTensionChange?: (score: number) => void;
 }
 
 const ControlPanel: React.FC<ControlPanelProps> = ({
@@ -28,16 +30,30 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
   attachedImage,
   onImageSelect,
   isMuted,
-  onToggleMute
+  onToggleMute,
+  onTensionChange
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isListening, setIsListening] = useState(false);
 
+  // Digital Proprioception Hook
+  const { handleKeyDown: handleDynamicsDown, handleKeyUp: handleDynamicsUp } = useKeystrokeDynamics(
+    (score) => onTensionChange?.(score)
+  );
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    // 1. Dynamics Analysis
+    handleDynamicsDown(e);
+
+    // 2. Functional Logic
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       onSend();
     }
+  };
+
+  const handleKeyUp = (e: React.KeyboardEvent) => {
+      handleDynamicsUp(e);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -83,6 +99,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
              let Icon = Globe;
              if (mode === TimeMode.REFLEX) Icon = Zap;
              if (mode === TimeMode.ETERNITY) Icon = BrainCircuit;
+             if (mode === TimeMode.SANCTUARY) Icon = Shield;
 
              return (
                <button
@@ -143,10 +160,11 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
             value={input}
             onChange={(e) => onInputChange(e.target.value)}
             onKeyDown={handleKeyDown}
+            onKeyUp={handleKeyUp}
             placeholder={isListening ? "Listening..." : `Message Chronos in ${MODE_CONFIG[currentMode].label}...`}
             className="w-full bg-transparent border-none text-gray-200 placeholder-gray-600 focus:ring-0 resize-none py-3 max-h-32"
             rows={1}
-            disabled={isLoading}
+            disabled={isLoading || currentMode === TimeMode.SANCTUARY} // Disable typing in Sanctuary Mode
             style={{ minHeight: '44px' }}
           />
 
@@ -170,10 +188,10 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
 
           <button
             onClick={onSend}
-            disabled={(!input.trim() && !attachedImage) || isLoading}
+            disabled={(!input.trim() && !attachedImage) || isLoading || currentMode === TimeMode.SANCTUARY}
             className={`
               p-3 rounded-xl transition-all duration-300 shrink-0
-              ${(!input.trim() && !attachedImage) || isLoading 
+              ${(!input.trim() && !attachedImage) || isLoading || currentMode === TimeMode.SANCTUARY
                 ? 'bg-gray-800 text-gray-600 cursor-not-allowed' 
                 : 'bg-white text-black hover:scale-105 active:scale-95 shadow-[0_0_10px_rgba(255,255,255,0.2)]'
               }

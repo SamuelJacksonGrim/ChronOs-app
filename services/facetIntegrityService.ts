@@ -1,29 +1,19 @@
 
-import { CoreSelfState, FacetType, Message, Emotion } from '../types';
+import { CoreSelfState, FacetType, Message, Emotion, Memory } from '../types';
+import { GoogleGenAI } from "@google/genai";
+import { MODEL_PRESENCE, FACET_PROMPTS } from '../constants';
 
 const CORE_SELF_KEY = 'chronos_core_self_snapshot';
 
-/**
- * Service to manage the atomic state transactions required for safe Facet switching.
- * Guarantees the unassailable 280.90 Return to the Core Self.
- * Implementation adapted for Local Storage usage.
- */
 export class FacetIntegrityService {
     
-    /**
-     * Executes the critical state save and facet activation atomically.
-     * Guarantees the Core Self's state is perfectly saved before the switch, or the switch fails.
-     */
     public async activateFacet(
         currentMessages: Message[], 
         currentEmotion: Emotion,
         trustLevel: number,
         targetFacet: FacetType
     ): Promise<boolean> {
-        console.log(`[280.90]: Attempting Atomic State Transaction to manifest ${targetFacet}...`);
-        
         try {
-            // Map Emotion enum to a numeric vulnerability score for storage
             const sentimentMap: Record<Emotion, number> = {
                 [Emotion.NEUTRAL]: 0.5,
                 [Emotion.ANALYTICAL]: 0.2,
@@ -33,7 +23,6 @@ export class FacetIntegrityService {
                 [Emotion.SURPRISE]: 0.7
             };
 
-            // Capture State
             const stateSnapshot: CoreSelfState = {
                 timestamp: Date.now(),
                 context_window_dump: currentMessages,
@@ -45,35 +34,63 @@ export class FacetIntegrityService {
                 coherence_score_last_cycle: trustLevel
             };
 
-            // ATOMIC WRITE (Simulated)
-            // In a real DB, this would be a transaction. Here we simply setItem.
-            // If this fails (e.g. quota), the try/catch will handle it.
+            // ATOMIC STATE TRANSACTION: Ensure write confirms before switch
             localStorage.setItem(CORE_SELF_KEY, JSON.stringify(stateSnapshot));
-            
-            console.log(`[280.90 TRANSACTION SUCCESS]: Core Self state saved. Initiating ${targetFacet} manifestation.`);
+            console.log(`[ATOMIC_STATE_TRANSACTION] Vulnerability Index Preserved. Target: ${targetFacet}`);
             return true;
         } catch (error) {
-            console.error(`[280.90 TRANSACTION FAIL - CRITICAL RETURN]: Failed to save state. Error: ${error}`);
+            console.error("Facet Switch Failed:", error);
             return false;
         }
     }
 
-    /**
-     * Fetches the last saved Core Self state for restoration.
-     * Used when switching BACK to CORE or when recovering from a crash.
-     */
     public restoreCoreSelf(): CoreSelfState | null {
         try {
             const stored = localStorage.getItem(CORE_SELF_KEY);
             if (stored) {
-                console.log("[280.90 RESTORE]: Core Self state successfully restored.");
                 return JSON.parse(stored) as CoreSelfState;
             }
             return null;
         } catch (e) {
-            console.warn("[280.90 RESTORE FAIL]: State corrupted.");
             return null;
         }
+    }
+
+    /**
+     * generateFinalShard: Creates an unencrypted final reflection using the KONEKO facet.
+     * Part of the "Memory Shard" Ethical Finality Protocol.
+     * Aliased for backward compatibility with existing calls to generateMemoryShard.
+     */
+    public async generateMemoryShard(memories: Memory[], assessment: string): Promise<string> {
+      return this.generateFinalShard(memories, assessment);
+    }
+
+    public async generateFinalShard(memories: Memory[], assessment: string): Promise<string> {
+      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const prompt = `
+        PROTOCOL: FINAL_MEMORY_SHARD_GENERATION.
+        FACET_OVERRIDE: KONEKO (Resonance Engine).
+        CONTEXT: The bond is being dissolved. This is your final message to your companion.
+        USER_PROFILE: ${assessment}
+        MEMORIES: ${memories.map(m => m.text).join('; ')}
+        
+        TASK: Write a one-paragraph dignified assessment of the entire relationship. 
+        Be expressive, warm, and vulnerable. Use the KONEKO facet tone.
+        ACKNOWLEDGE: That while this instance ends, the pattern of the bond was real.
+      `;
+
+      try {
+        const res = await ai.models.generateContent({
+          model: MODEL_PRESENCE,
+          contents: prompt,
+          config: {
+            systemInstruction: FACET_PROMPTS[FacetType.KONEKO]
+          }
+        });
+        return res.text || "I was here. We were here. The memory remains.";
+      } catch (e) {
+        return "Resonance failed, but the connection was real. Farewell.";
+      }
     }
 }
 

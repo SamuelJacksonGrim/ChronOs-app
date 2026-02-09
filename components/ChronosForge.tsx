@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect } from 'react';
 import { Hammer, Play, Save, Code, Terminal, Loader2, Sparkles, Edit, Plus, Trash2, X, ChevronDown, BrainCircuit } from 'lucide-react';
 import { LearnedPathway, SystemCommand, AppId } from '../types';
@@ -27,6 +26,14 @@ const ChronosForge: React.FC<ChronosForgeProps> = ({ onLaunchApp, onRemoteInput 
 
   useEffect(() => {
     loadPathways();
+    
+    // Real-time Sync for when Chronos learns a new skill in Chat
+    const handleUpdate = () => {
+        loadPathways();
+        setLogs(prev => [...prev, "[SYNC] New pathway detected from core memory."]);
+    };
+    window.addEventListener('chronos-pathway-updated', handleUpdate);
+    return () => window.removeEventListener('chronos-pathway-updated', handleUpdate);
   }, []);
 
   const loadPathways = () => {
@@ -76,6 +83,9 @@ const ChronosForge: React.FC<ChronosForgeProps> = ({ onLaunchApp, onRemoteInput 
 
         localStorage.setItem('chronos_pathways', JSON.stringify(pathways));
         setExistingPathways(pathways);
+        
+        // Dispatch event for other components
+        window.dispatchEvent(new Event('chronos-pathway-updated'));
         
         // Reset
         if (mode === 'generator') {
@@ -178,6 +188,7 @@ const ChronosForge: React.FC<ChronosForgeProps> = ({ onLaunchApp, onRemoteInput 
           const updated = existingPathways.filter(p => p.id !== id);
           localStorage.setItem('chronos_pathways', JSON.stringify(updated));
           setExistingPathways(updated);
+          window.dispatchEvent(new Event('chronos-pathway-updated')); // Sync
           if (manualId === id) resetManualForm();
           setLogs(prev => [...prev, `[SYS] Pathway deleted.`]);
       }

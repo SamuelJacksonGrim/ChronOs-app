@@ -14,7 +14,10 @@ const FluxCalc: React.FC<FluxCalcProps> = ({ onLogAction, remoteInput }) => {
   // Handle Remote AI Input
   useEffect(() => {
     if (remoteInput) {
-      const val = remoteInput.trim();
+      // Parse the nonce-protected input: "value|timestamp"
+      const parts = remoteInput.split('|');
+      const val = parts[0].trim();
+      
       if (['+', '-', 'x', '*', '/', '÷'].includes(val)) {
          handleOp(val.replace('*', 'x').replace('/', '÷'));
       } else if (val === '=') {
@@ -25,7 +28,7 @@ const FluxCalc: React.FC<FluxCalcProps> = ({ onLogAction, remoteInput }) => {
          handlePress(val);
       }
     }
-  }, [remoteInput]);
+  }, [remoteInput]); // React will fire this even if 'val' is same, because 'remoteInput' string changed due to timestamp
 
   // Handle Keyboard Input
   useEffect(() => {

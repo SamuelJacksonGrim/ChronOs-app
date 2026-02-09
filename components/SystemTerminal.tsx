@@ -1,8 +1,7 @@
 
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Activity, Cpu, HardDrive, Shield, Terminal as TerminalIcon } from 'lucide-react';
-import { scanForSecrets } from '../services/fileSystemService';
+import { scanForSecrets, getVFS } from '../services/fileSystemService';
 import { AppId } from '../types';
 
 interface SystemTerminalProps {
@@ -106,11 +105,15 @@ const SystemTerminal: React.FC<SystemTerminalProps> = ({ onShutdown, onLaunchApp
         setIsProcessing(false);
         return; // Early return to handle async logs manually
       case 'scan_files':
-        // Dummy implementation for visual feedback as real scan is in ChronosApp
-        output = "[FS] Scanning VFS integrity...";
-        setTimeout(() => {
-            setLogs(prev => [...prev, "[FS] Index rebuilt. 0 errors."]);
-        }, 1500);
+        try {
+            const vfs = getVFS();
+            const files = vfs.filter(i => i.type === 'file').length;
+            const folders = vfs.filter(i => i.type === 'folder').length;
+            const totalSize = JSON.stringify(vfs).length;
+            output = `[FS] VFS Scan Report:\n - Files: ${files}\n - Folders: ${folders}\n - Total Size: ${(totalSize / 1024).toFixed(2)} KB`;
+        } catch (e) {
+            output = "[ERR] Failed to access VFS.";
+        }
         break;
       case 'shutdown':
          if (onShutdown) {

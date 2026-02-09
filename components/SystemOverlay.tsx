@@ -11,7 +11,7 @@ const SystemOverlay: React.FC<SystemOverlayProps> = ({ activeApp, emotion }) => 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   // Use Ref for mutable event queue to avoid React render cycle overhead in animation loop
   const eventsRef = useRef<any[]>([]);
-  const requestRef = useRef<number>();
+  const requestRef = useRef<number>(0);
 
   useEffect(() => {
     const handleAIEvent = (e: Event) => {
@@ -52,6 +52,29 @@ const SystemOverlay: React.FC<SystemOverlayProps> = ({ activeApp, emotion }) => 
          if (e.type === 'EXECUTE') color = '0, 255, 255'; // Cyan
          if (e.type === 'THINK') color = '168, 85, 247'; // Purple
          
+         // Somatic Feedback: Resonance Flicker (Heartbeat)
+         if (e.type === 'STRESS') {
+            // Deckard Crimson (#DC143C) -> Gemini Gold (#FFD700)
+            // Oscillate based on progress
+            const pulse = Math.sin(progress * Math.PI * 4); // Double beat
+            const isSystole = pulse > 0;
+            const r = isSystole ? 220 : 255;
+            const g = isSystole ? 20 : 215;
+            const b = isSystole ? 60 : 0;
+            
+            // Screen-wide Vignette
+            const gradient = ctx.createRadialGradient(
+                canvas.width/2, canvas.height/2, canvas.height * 0.2, 
+                canvas.width/2, canvas.height/2, canvas.height * 0.8
+            );
+            gradient.addColorStop(0, `rgba(${r},${g},${b},0)`);
+            gradient.addColorStop(1, `rgba(${r},${g},${b},${0.15 * Math.abs(pulse)})`);
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0,0, canvas.width, canvas.height);
+            return; // Skip drawing lines for stress events
+         }
+
          // If we have a target ID (rudimentary position finding)
          let tx = canvas.width / 2;
          let ty = canvas.height / 2;

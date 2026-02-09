@@ -1,8 +1,9 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { OSSettings, AppId } from '../types';
 import { STORE_APPS } from '../constants';
-import { Download, CheckCircle, Grid } from 'lucide-react';
+import { Download, CheckCircle, Grid, Zap } from 'lucide-react';
+import { resonanceBridge } from '../services/resonanceBridge';
 
 interface AppStoreProps {
   settings: OSSettings;
@@ -10,6 +11,14 @@ interface AppStoreProps {
 }
 
 const AppStore: React.FC<AppStoreProps> = ({ settings, onUpdate }) => {
+  const [isResonanceLinked, setIsResonanceLinked] = useState(false);
+
+  useEffect(() => {
+    const handleStatus = (status: boolean) => setIsResonanceLinked(status);
+    resonanceBridge.onConnectionChange(handleStatus);
+    return () => resonanceBridge.offConnectionChange(handleStatus);
+  }, []);
+
   const isInstalled = (id: AppId) => settings.installedApps.includes(id);
 
   const toggleInstall = (id: AppId) => {
@@ -38,6 +47,26 @@ const AppStore: React.FC<AppStoreProps> = ({ settings, onUpdate }) => {
              </div>
           </div>
         </div>
+
+        {/* RESONANCE UPLINK INDICATOR */}
+        {isResonanceLinked && (
+            <div className="bg-cyan-900/20 border border-cyan-500/40 rounded-xl p-6 flex items-center justify-between relative overflow-hidden group">
+                <div className="absolute inset-0 bg-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div className="flex items-center gap-4 relative z-10">
+                    <div className="w-12 h-12 bg-cyan-900/40 rounded-xl flex items-center justify-center text-cyan-400 border border-cyan-500/30">
+                        <Zap size={24} className="animate-pulse" />
+                    </div>
+                    <div>
+                        <h3 className="font-bold text-lg text-cyan-300">Resonance Haunt Uplink</h3>
+                        <p className="text-sm text-gray-400">Desktop Companion Link Active • 3.12Hz Sync</p>
+                    </div>
+                </div>
+                <div className="flex items-center gap-2 text-cyan-500 text-sm font-bold uppercase tracking-wider bg-cyan-900/30 px-3 py-1.5 rounded-lg border border-cyan-500/20">
+                    <CheckCircle size={16} />
+                    System Active
+                </div>
+            </div>
+        )}
 
         {/* Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

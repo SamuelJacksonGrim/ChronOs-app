@@ -29,16 +29,21 @@ const EnergySim: React.FC<EnergySimProps> = ({ onLogAction, remoteInput }) => {
   // AI Remote Control Handling
   useEffect(() => {
     if (remoteInput) {
-      if (remoteInput.toLowerCase().includes('optimize') || remoteInput.toLowerCase().includes('balance')) {
+      // Split the nonce "value|1234567"
+      const rawVal = remoteInput.split('|')[0];
+      const val = rawVal.toLowerCase();
+
+      if (val.includes('optimize') || val.includes('balance')) {
         optimizeGrid();
-      } else if (remoteInput.toLowerCase().includes('solar')) {
-        const val = parseInt(remoteInput.replace(/\D/g, '')) || 80;
-        setSolarOutput(val);
-        onLogAction?.('energy', `AI set Solar Output to ${val}`);
-      } else if (remoteInput.toLowerCase().includes('weather')) {
-        if (remoteInput.includes('storm')) setWeather('STORMY');
-        if (remoteInput.includes('sun')) setWeather('SUNNY');
-        if (remoteInput.includes('night')) setWeather('NIGHT');
+      } else if (val.includes('solar')) {
+        const num = parseInt(val.replace(/\D/g, '')) || 80;
+        setSolarOutput(num);
+        onLogAction?.('energy', `AI set Solar Output to ${num}`);
+      } else if (val.includes('weather')) {
+        if (val.includes('storm')) setWeather('STORMY');
+        if (val.includes('sun')) setWeather('SUNNY');
+        if (val.includes('night')) setWeather('NIGHT');
+        if (val.includes('cloud')) setWeather('CLOUDY');
       }
     }
   }, [remoteInput]);
