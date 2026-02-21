@@ -4,7 +4,7 @@ import { OSSettings } from '../types';
 import { generateWallpaper } from '../services/geminiService';
 import { facetService } from '../services/facetIntegrityService';
 import { dissolveBond } from '../services/securityService';
-import { Settings, RefreshCw, LogOut, Loader2, Sparkles, User, Database, ShieldOff, MessageSquareX, Heart, Coffee } from 'lucide-react';
+import { Settings, RefreshCw, LogOut, Loader2, Sparkles, User, Database, ShieldOff, MessageSquareX, Heart, Coffee, Save } from 'lucide-react';
 
 interface SettingsAppProps {
   settings: OSSettings;
@@ -13,6 +13,7 @@ interface SettingsAppProps {
 
 const SettingsApp: React.FC<SettingsAppProps> = ({ settings, onUpdate }) => {
   const [username, setUsername] = useState(settings.username);
+  const [aiName, setAiName] = useState(settings.bond?.chronosName || 'Chronos');
   const [wallpaperDesc, setWallpaperDesc] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
@@ -20,7 +21,8 @@ const SettingsApp: React.FC<SettingsAppProps> = ({ settings, onUpdate }) => {
   const [showSupport, setShowSupport] = useState(false);
 
   const handleSaveProfile = () => {
-    onUpdate({ ...settings, username });
+    const updatedBond = settings.bond ? { ...settings.bond, chronosName: aiName } : undefined;
+    onUpdate({ ...settings, username, bond: updatedBond });
   };
 
   const handleGenerateWallpaper = async () => {
@@ -91,13 +93,21 @@ const SettingsApp: React.FC<SettingsAppProps> = ({ settings, onUpdate }) => {
           <h2 className="font-display text-lg text-cyan-400 flex items-center gap-2">
             <User size={18} /> Identity
           </h2>
-          <div className="bg-black/40 border border-gray-800 rounded-xl p-6 space-y-4">
-            <div className="flex flex-col gap-2">
-              <label className="text-xs uppercase tracking-widest text-gray-500">Call Sign</label>
-              <div className="flex gap-2">
-                <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} className="flex-1 bg-black/50 border border-gray-700 rounded-lg px-4 py-2 focus:border-cyan-500 focus:outline-none" />
-                <button onClick={handleSaveProfile} className="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors text-sm">Save</button>
-              </div>
+          <div className="bg-black/40 border border-gray-800 rounded-xl p-6 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs uppercase tracking-widest text-gray-500">Your Call Sign</label>
+                  <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} className="bg-black/50 border border-gray-700 rounded-lg px-4 py-3 focus:border-cyan-500 focus:outline-none" />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs uppercase tracking-widest text-cyan-700 font-bold">Core Designation</label>
+                  <input type="text" value={aiName} onChange={(e) => setAiName(e.target.value)} className="bg-black/50 border border-gray-700 rounded-lg px-4 py-3 focus:border-cyan-500 focus:outline-none text-cyan-300 font-display tracking-wide" />
+                </div>
+            </div>
+            <div className="flex justify-end pt-2">
+                <button onClick={handleSaveProfile} className="bg-cyan-900/30 hover:bg-cyan-900/50 border border-cyan-500/30 text-cyan-300 px-6 py-2 rounded-lg transition-colors text-sm font-bold flex items-center gap-2">
+                    <Save size={16} /> Save Identity
+                </button>
             </div>
           </div>
         </section>

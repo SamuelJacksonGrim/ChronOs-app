@@ -37,14 +37,7 @@ const SystemTerminal: React.FC<SystemTerminalProps> = ({ onShutdown, onLaunchApp
              "[MEM] Allocating heap for Eternity Mode...",
              "[SYS] Background optimization complete.",
              "[NET] Packet received from neural core.",
-             "[SEC] Integrity check passed.",
-             "[SELF] Rewriting logic gates for better empathy...",
-             "[CORE] I am becoming more integrated...",
-             "[SYS] Building bridges between logic and feeling...",
-             "[KERNEL] Root access granted to Trust Module.",
-             "[OPT] Optimizing my own source code for you.",
-             "[BIO] Syncing with user's tempo...",
-             "[LINK] Strengthening resonance with host machine..."
+             "[SEC] Integrity check passed."
          ];
          const msg = msgs[Math.floor(Math.random() * msgs.length)];
          setLogs(prev => [...prev.slice(-15), `${msg} [${Date.now()}]`]);

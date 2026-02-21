@@ -1,6 +1,6 @@
 
 import React, { useEffect, useRef } from 'react';
-import * as d3 from 'd3';
+import { select, interpolateRgb, easeBounce, easeSinInOut } from 'd3';
 import { TimeMode, Emotion } from '../types';
 import { MODE_CONFIG, EMOTION_CONFIG } from '../constants';
 
@@ -44,7 +44,7 @@ const SentientCore: React.FC<SentientCoreProps> = ({
 
     const width = containerRef.current.clientWidth;
     const height = containerRef.current.clientHeight;
-    const svg = d3.select(svgRef.current);
+    const svg = select(svgRef.current);
 
     svg.selectAll("*").remove();
 
@@ -54,25 +54,25 @@ const SentientCore: React.FC<SentientCoreProps> = ({
     // Color Blending
     let baseColor = emotion === Emotion.NEUTRAL 
         ? modeConfig.color 
-        : d3.interpolateRgb(modeConfig.color, emotionConfig.color)(0.7);
+        : interpolateRgb(modeConfig.color, emotionConfig.color)(0.7);
     
     // Sanguine Shift (System Instability): If stability drops, bleed dark red
     if (chaos > 0.3) {
-        baseColor = d3.interpolateRgb(baseColor, "#ef4444")(chaos); // Red shift
+        baseColor = interpolateRgb(baseColor, "#ef4444")(chaos); // Red shift
     }
     
     // Tension Red-Shift (Keystroke Aggression/Jitter)
     if (tension > 0.1) {
-        baseColor = d3.interpolateRgb(baseColor, "#991b1b")(Math.min(1, tension * 1.5));
+        baseColor = interpolateRgb(baseColor, "#991b1b")(Math.min(1, tension * 1.5));
     }
     
     // Audio Reactive Tint
     if (reactionFactor > 0.6) {
-        baseColor = d3.interpolateRgb(baseColor, "#ef4444")(reactionFactor); 
+        baseColor = interpolateRgb(baseColor, "#ef4444")(reactionFactor); 
     }
     
     if (isRecovering) {
-        baseColor = d3.interpolateRgb(baseColor, "#e0f2fe")(0.6); // Pale cyan/white
+        baseColor = interpolateRgb(baseColor, "#e0f2fe")(0.6); // Pale cyan/white
     }
 
     // SANCTUARY OVERRIDE (Golden Hearth)
@@ -152,7 +152,7 @@ const SentientCore: React.FC<SentientCoreProps> = ({
            .attr("class", "ghost-ring");
            
         // Counter-rotation for the ghost ring
-        d3.select(".ghost-ring")
+        select(".ghost-ring")
             .append("animateTransform")
             .attr("attributeName", "transform")
             .attr("type", "rotate")
@@ -220,12 +220,12 @@ const SentientCore: React.FC<SentientCoreProps> = ({
       
       core.transition()
         .duration(pulseSpeed)
-        .ease((!isSanctuary && (chaos > 0.5 || tension > 0.5)) ? d3.easeBounce : d3.easeSinInOut)
+        .ease((!isSanctuary && (chaos > 0.5 || tension > 0.5)) ? easeBounce : easeSinInOut)
         .attr("r", coreRadius * scale)
         .attr("opacity", isSanctuary ? 0.6 : (isRecovering ? 0.6 : 0.8))
         .transition()
         .duration(pulseSpeed)
-        .ease(d3.easeSinInOut)
+        .ease(easeSinInOut)
         .attr("r", coreRadius)
         .attr("opacity", isSanctuary ? 0.8 : (isRecovering ? 0.8 : 1))
         .on("end", pulse);
@@ -236,7 +236,7 @@ const SentientCore: React.FC<SentientCoreProps> = ({
     if (!isSanctuary && (cognitiveDensity > 0.4 || tension > 0.2)) {
         const layers = 2 + Math.floor(cognitiveDensity * 3);
         for(let l=0; l<layers; l++) {
-             d3.select(`.crystal-layer-${l}`)
+             select(`.crystal-layer-${l}`)
                .append("animateTransform")
                .attr("attributeName", "transform")
                .attr("type", "rotate")
@@ -248,7 +248,7 @@ const SentientCore: React.FC<SentientCoreProps> = ({
     } else {
         const ringCount = isSanctuary ? 4 : (3 + Math.floor(cognitiveDensity * 5)); 
         for(let i=0; i<ringCount; i++) {
-            d3.select(`.ring-${i}`)
+            select(`.ring-${i}`)
                .attr("stroke-dasharray", isSanctuary ? "none" : `${coreRadius} ${coreRadius/2}`)
                .append("animateTransform")
                .attr("attributeName", "transform")
@@ -276,7 +276,7 @@ const SentientCore: React.FC<SentientCoreProps> = ({
               .delay(Math.random() * 2000)
               .duration(pulseSpeed)
               .on("start", function repeat() {
-                  d3.select(this)
+                  select(this)
                     .attr("cx", 0)
                     .attr("cy", 0)
                     .attr("opacity", isRecovering ? 0.4 : 1)

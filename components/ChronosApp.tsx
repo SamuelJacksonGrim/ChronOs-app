@@ -304,7 +304,9 @@ const ChronosApp: React.FC<ChronosAppProps> = ({ osSettings, onLaunchApp, onBroa
       <header className={`z-10 px-6 py-2 border-b border-white/5 flex items-center justify-between backdrop-blur-md transition-opacity duration-500 ${state.mode === TimeMode.SANCTUARY ? 'opacity-0' : 'opacity-100'}`}>
         <div className="flex items-center gap-2">
            <div className={`w-2 h-2 rounded-full animate-pulse`} style={{ backgroundColor: MODE_CONFIG[state.mode].color }}></div>
-           <span className="text-[10px] font-display uppercase tracking-widest text-gray-400">Chronos Core</span>
+           <span className="text-[10px] font-display uppercase tracking-widest text-gray-400">
+             {osSettings.bond?.chronosName || 'Chronos'} Core
+           </span>
            {/* HANDSHAKE RITUAL VISUALIZATION */}
            {isResonanceLinked && (
               <div className="flex items-center gap-1 ml-4 px-2 py-0.5 rounded-full bg-cyan-900/30 border border-cyan-500/30 animate-fade-in">

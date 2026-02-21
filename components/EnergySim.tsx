@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Zap, Sun, Wind, Battery, Activity, ArrowUp, CloudRain, Cloud, Moon } from 'lucide-react';
-import * as d3 from 'd3';
+import { select, scaleLinear, line, curveMonotoneX } from 'd3';
 import { AppId } from '../types';
 
 interface EnergySimProps {
@@ -119,17 +119,17 @@ const EnergySim: React.FC<EnergySimProps> = ({ onLogAction, remoteInput }) => {
 
   const renderChart = () => {
     if (!svgRef.current) return;
-    const svg = d3.select(svgRef.current);
+    const svg = select(svgRef.current);
     const width = svgRef.current.clientWidth;
     const height = svgRef.current.clientHeight;
 
-    const x = d3.scaleLinear().domain([0, 49]).range([0, width]);
-    const y = d3.scaleLinear().domain([58, 62]).range([height, 0]);
+    const x = scaleLinear().domain([0, 49]).range([0, width]);
+    const y = scaleLinear().domain([58, 62]).range([height, 0]);
 
-    const line = d3.line<number>()
+    const lineGenerator = line<number>()
       .x((d, i) => x(i))
       .y(d => y(d))
-      .curve(d3.curveMonotoneX);
+      .curve(curveMonotoneX);
 
     svg.selectAll('*').remove();
     
@@ -145,7 +145,7 @@ const EnergySim: React.FC<EnergySimProps> = ({ onLogAction, remoteInput }) => {
       .attr('fill', 'none')
       .attr('stroke', stability > 80 ? '#00ffff' : stability > 50 ? '#fbbf24' : '#ef4444')
       .attr('stroke-width', 2)
-      .attr('d', line);
+      .attr('d', lineGenerator);
   };
 
   const optimizeGrid = () => {

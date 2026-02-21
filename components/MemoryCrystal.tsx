@@ -1,6 +1,6 @@
 
 import React, { useEffect, useRef, useState } from 'react';
-import * as d3 from 'd3';
+import { select } from 'd3';
 import { LanternGraph, LanternNode } from '../types';
 import { BrainCircuit, Pause, Maximize, Settings, Disc, Wind, Activity, Zap, Archive } from 'lucide-react';
 import { lanternService } from '../services/lanternService';
@@ -62,7 +62,7 @@ const MemoryCrystal: React.FC<MemoryCrystalProps> = ({ ssi = 1.0 }) => {
 
     const width = containerRef.current.clientWidth;
     const height = containerRef.current.clientHeight;
-    const svg = d3.select(svgRef.current);
+    const svg = select(svgRef.current);
     svg.selectAll("*").remove();
 
     // 1. MAP GRAPH TO SPHERE
