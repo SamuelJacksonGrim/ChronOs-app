@@ -6,8 +6,9 @@ import { MessageSquare, Settings, Grid, Calculator, FileText, Image as ImageIcon
 export const MODEL_REFLEX = 'gemini-flash-lite-latest'; // gemini-2.5-flash-lite alias
 // Update to standard 'gemini-3-flash-preview' for basic text tasks and search grounding
 export const MODEL_PRESENCE = 'gemini-3-flash-preview';
-export const MODEL_ETERNITY = 'gemini-3-pro-preview';
-export const MODEL_IMAGE_DEFAULT = 'gemini-3-pro-image-preview'; // User requested this for images
+// Restore Pro model for Eternity (Deep Thought) as it works with default env key for text
+export const MODEL_ETERNITY = 'gemini-3.1-pro-preview';
+export const MODEL_IMAGE_DEFAULT = 'gemini-2.5-flash-image'; // Keep Free tier image model
 
 // Configs
 export const THINKING_BUDGET_MAX = 32768;

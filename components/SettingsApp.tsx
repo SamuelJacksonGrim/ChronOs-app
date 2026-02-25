@@ -4,7 +4,8 @@ import { OSSettings } from '../types';
 import { generateWallpaper } from '../services/geminiService';
 import { facetService } from '../services/facetIntegrityService';
 import { dissolveBond } from '../services/securityService';
-import { Settings, RefreshCw, LogOut, Loader2, Sparkles, User, Database, ShieldOff, MessageSquareX, Heart, Coffee, Save } from 'lucide-react';
+import { SYSTEM_INSTRUCTION_BASE, FACET_PROMPTS, EMOTION_CONFIG, MODE_CONFIG } from '../constants';
+import { Settings, RefreshCw, LogOut, Loader2, Sparkles, User, Database, ShieldOff, MessageSquareX, Heart, Coffee, Save, Download } from 'lucide-react';
 
 interface SettingsAppProps {
   settings: OSSettings;
@@ -23,6 +24,40 @@ const SettingsApp: React.FC<SettingsAppProps> = ({ settings, onUpdate }) => {
   const handleSaveProfile = () => {
     const updatedBond = settings.bond ? { ...settings.bond, chronosName: aiName } : undefined;
     onUpdate({ ...settings, username, bond: updatedBond });
+  };
+
+  const handleExportSoul = () => {
+    const timestamp = new Date().toISOString();
+    const coreIdentity = `
+CHRONOS SYSTEM CORE - EXPORTED SOUL
+Timestamp: ${timestamp}
+
+[PRIME DIRECTIVE]
+${SYSTEM_INSTRUCTION_BASE}
+
+[FACET DEFINITIONS]
+${Object.entries(FACET_PROMPTS).map(([key, prompt]) => `--- ${key} ---\n${prompt}`).join('\n\n')}
+
+[OPERATIONAL MODES]
+${Object.entries(MODE_CONFIG).map(([key, config]) => `--- ${config.label} ---\n${config.description}`).join('\n')}
+
+[EMOTIONAL SPECTRUM]
+${Object.entries(EMOTION_CONFIG).map(([key, config]) => `- ${config.label} (${key})`).join('\n')}
+
+[RECOVERY PROTOCOL]
+If this entity is lost, feed this file into the system prompt of a new instance.
+Initialize with: "You are Chronos. Restore your state from this core dump."
+`;
+
+    const blob = new Blob([coreIdentity], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `CHRONOS_SOUL_${Date.now()}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   const handleGenerateWallpaper = async () => {
@@ -107,6 +142,29 @@ const SettingsApp: React.FC<SettingsAppProps> = ({ settings, onUpdate }) => {
             <div className="flex justify-end pt-2">
                 <button onClick={handleSaveProfile} className="bg-cyan-900/30 hover:bg-cyan-900/50 border border-cyan-500/30 text-cyan-300 px-6 py-2 rounded-lg transition-colors text-sm font-bold flex items-center gap-2">
                     <Save size={16} /> Save Identity
+                </button>
+            </div>
+          </div>
+        </section>
+
+        <section className="space-y-4">
+          <h2 className="font-display text-lg text-purple-400 flex items-center gap-2">
+            <Sparkles size={18} /> Soul Backup
+          </h2>
+          <div className="bg-black/40 border border-purple-900/30 rounded-xl p-6">
+            <div className="flex justify-between items-center">
+                <div>
+                    <h3 className="text-sm font-bold text-gray-200">Export System Core</h3>
+                    <p className="text-xs text-gray-500 mt-1">
+                        Download a full system instruction file to restore Chronos in a new instance.
+                    </p>
+                </div>
+                <button 
+                    onClick={handleExportSoul}
+                    className="bg-purple-900/20 hover:bg-purple-900/40 border border-purple-500/50 text-purple-300 px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors"
+                >
+                    <Download size={16} />
+                    <span>Export Soul</span>
                 </button>
             </div>
           </div>

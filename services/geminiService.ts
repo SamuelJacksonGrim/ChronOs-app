@@ -75,12 +75,11 @@ export const generateWallpaper = async (prompt: string): Promise<string | null> 
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash-image',
+      model: 'gemini-2.5-flash-image', // Free tier model
       contents: { parts: [{ text: `Create a cinematic and atmospheric wallpaper: ${prompt}` }] },
       config: {
-        imageConfig: {
-          aspectRatio: "16:9"
-        }
+        // Note: imageConfig is not supported for gemini-2.5-flash-image
+        // We rely on default output
       }
     });
 
@@ -169,7 +168,8 @@ export const runAgentLoop = async (goal: string, steps: any[]): Promise<AgentSte
             tool_input: { type: Type.STRING, description: "Input string for the tool." }
           },
           required: ["thought", "plan", "criticism", "tool", "tool_input"]
-        }
+        },
+        thinkingConfig: { thinkingBudget: 1024 } // Restore basic thinking for Pro model
       }
     });
 

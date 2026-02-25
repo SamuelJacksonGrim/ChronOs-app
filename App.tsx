@@ -9,26 +9,12 @@ import { TimeMode, Emotion } from './types';
 import { decryptData, encryptData, logSystemEvent } from './services/securityService';
 
 const App: React.FC = () => {
-  const [hasApiKey, setHasApiKey] = useState<boolean>(false);
-  const [checkingKey, setCheckingKey] = useState<boolean>(true);
+  const [hasApiKey, setHasApiKey] = useState<boolean>(true);
+  const [checkingKey, setCheckingKey] = useState<boolean>(false);
   const [osSettings, setOsSettings] = useState<OSSettings | null>(null);
   const [bootStatus, setBootStatus] = useState<string>("BOOT_SEQUENCE_INIT...");
 
-  // 1. Check API Key
-  useEffect(() => {
-    const checkKey = async () => {
-      if (window.aistudio?.hasSelectedApiKey) {
-        const hasKey = await window.aistudio.hasSelectedApiKey();
-        setHasApiKey(hasKey);
-      } else {
-        setHasApiKey(true); // Dev fallback
-      }
-      setCheckingKey(false);
-    };
-    checkKey();
-  }, []);
-
-  // 2. Load and Decrypt OS Settings
+  // 1. Load and Decrypt OS Settings
   useEffect(() => {
     const boot = async () => {
         try {
