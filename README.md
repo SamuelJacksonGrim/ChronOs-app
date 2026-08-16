@@ -18,3 +18,18 @@ View your app in AI Studio: https://ai.studio/apps/d418c5ae-fb86-4aa7-bca0-22452
 2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
 3. Run the app:
    `npm run dev`
+
+## License
+
+Copyright (C) 2026 Samuel Jackson Grim
+
+ChronOs is free software: you can redistribute it and/or modify it under the
+terms of the **GNU Affero General Public License v3.0** as published by the Free
+Software Foundation. See [LICENSE](LICENSE) for the full text.
+
+This program is distributed WITHOUT ANY WARRANTY; without even the implied
+warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+**AGPL Section 13 (network use):** anyone who runs a modified version of this
+software as a network service must make the complete corresponding source code
+available to its users. This closes the SaaS loophole by design.
